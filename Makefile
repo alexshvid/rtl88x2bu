@@ -112,7 +112,7 @@ CONFIG_RTW_SDIO_PM_KEEP_POWER = y
 ###################### MP HW TX MODE FOR VHT #######################
 CONFIG_MP_VHT_HW_TX_MODE = n
 ###################### Platform Related #######################
-CONFIG_PLATFORM_ARM_NV_NANO = n 
+CONFIG_PLATFORM_ARM_NV_NANO = n
 CONFIG_PLATFORM_I386_PC = y
 CONFIG_PLATFORM_ARM_RPI = n
 CONFIG_PLATFORM_ANDROID_X86 = n
@@ -2278,6 +2278,17 @@ endif
 
 export CONFIG_RTL8822BU = m
 
+PKG_NAME=$(MODULE_NAME)
+PKG_DESCRIPTION="Wireless Driver $(MODULE_NAME)"
+PKG_VERSION=1
+PKG_RELEASE=0
+PKG_MAINTAINER="Alex Shvid \<a@shvid.com\>"
+PKG_ARCH=all
+
+PKG_DEB=$(PKG_NAME)_$(PKG_VERSION)-$(PKG_RELEASE)_$(PKG_ARCH).deb
+FPM_OPTS=-s dir -n $(PKG_NAME) -v $(PKG_VERSION) --iteration $(PKG_RELEASE) -C $(TMPINSTALLDIR) --maintainer $(PKG_MAINTAINER) --description $(PKG_DESCRIPTION) -a $(PKG_ARCH)
+TMPINSTALLDIR=/tmp/$(PKG_NAME)-fpm-install
+
 all: modules
 
 modules:
@@ -2334,6 +2345,14 @@ config_r:
 
 
 .PHONY: modules clean
+
+
+deb:
+	rm -rf $(TMPINSTALLDIR)
+	rm -f $(PKG_DEB)
+	make install MODDESTDIR=$(TMPINSTALLDIR)
+	cp install.sh $(TMPINSTALLDIR)
+	fpm -t deb -p $(PKG_DEB) $(FPM_OPTS) --after-install ./install.sh
 
 clean:
 	#$(MAKE) -C $(KSRC) M=$(shell pwd) clean

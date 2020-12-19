@@ -2278,16 +2278,9 @@ endif
 
 export CONFIG_RTL8822BU = m
 
-PKG_NAME=$(MODULE_NAME)
-PKG_DESCRIPTION="Wireless Driver $(MODULE_NAME)"
-PKG_VERSION=1
-PKG_RELEASE=0
-PKG_MAINTAINER="Alex Shvid \<a@shvid.com\>"
-PKG_ARCH=all
-
-PKG_DEB=$(PKG_NAME)_$(PKG_VERSION)-$(PKG_RELEASE)_$(PKG_ARCH).deb
-FPM_OPTS=-s dir -n $(PKG_NAME) -v $(PKG_VERSION) --iteration $(PKG_RELEASE) -C $(TMPINSTALLDIR) --maintainer $(PKG_MAINTAINER) --description $(PKG_DESCRIPTION) -a $(PKG_ARCH)
-TMPINSTALLDIR=/tmp/$(PKG_NAME)-fpm-install
+PKG_NAME=rtl$(MODULE_NAME)
+PKG_ZIP=$(PKG_NAME).zip
+TMPINSTALLDIR=/tmp/$(PKG_NAME)-zip-install
 
 all: modules
 
@@ -2347,12 +2340,13 @@ config_r:
 .PHONY: modules clean
 
 
-deb:
+zip:
 	rm -rf $(TMPINSTALLDIR)
-	rm -f $(PKG_DEB)
+	rm -f $(PKG_ZIP)
+	mkdir $(TMPINSTALLDIR)
 	make install MODDESTDIR=$(TMPINSTALLDIR)
-	cp install.sh $(TMPINSTALLDIR)
-	fpm -t deb -p $(PKG_DEB) $(FPM_OPTS) --after-install ./install.sh
+	cp install.sh $(TMPINSTALLDIR)/
+	zip -r -j $(PKG_ZIP) $(TMPINSTALLDIR)
 
 clean:
 	#$(MAKE) -C $(KSRC) M=$(shell pwd) clean
